@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KIP Lookup - Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        :root {
+            --primary: #8a2be2;
+            --primary-light: #9370db;
+            --primary-dark: #4b0082;
+            --gradient: linear-gradient(135deg, var(--primary), var(--primary-light));
+            --dark: #121212;
+            --darker: #0a0a0a;
+            --dark-light: #1e1e1e;
+            --text: #e0e0e0;
+            --text-light: #f5f5f5;
+            --text-dim: #b0b0b0;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--dark);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background-color: var(--darker);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .logo h1 {
+            font-weight: 700;
+            font-size: 1.75rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--gradient);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        nav a.back {
+            background-color: var(--dark-light);
+        }
+        
+        nav a.back:hover {
+            background-color: rgba(58, 134, 255, 0.1);
+            color: var(--primary);
+        }
+        
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        .auth-container {
+            max-width: 500px;
+            margin: 2rem auto;
+            background-color: var(--dark-light);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        
+        .auth-container h2 {
+            margin-bottom: 1.5rem;
+            color: var(--text-light);
+        }
+        
+        .auth-container input {
+            width: 100%;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--darker);
+            color: var(--text);
+            font-size: 1rem;
+        }
+        
+        .auth-container button {
+            width: 100%;
+            padding: 1rem;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+        
+        .auth-container button:hover {
+            opacity: 0.9;
+        }
+        
+        .auth-error {
+            color: var(--danger);
+            margin-top: 1rem;
+        }
+        
+        .admin-container {
+            display: none;
+        }
+        
+        .search-section {
+            background-color: var(--dark-light);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--darker);
+            color: var(--text);
+            font-size: 1rem;
+        }
+        
+        .search-box button {
+            padding: 0 2rem;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .search-box button:hover {
+            opacity: 0.9;
+        }
+        
+        .edit-form {
+            background-color: var(--dark-light);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            display: none;
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .form-header h2 {
+            color: var(--text-light);
+        }
+        
+        .tab-container {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-dim);
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 6px;
+            background-color: var(--darker);
+            color: var(--text);
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .range-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .range-controls input {
+            flex: 1;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+        
+        .form-actions button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .save-btn {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .save-btn:hover {
+            background-color: #3d8b40;
+        }
+        
+        .cancel-btn {
+            background-color: var(--dark-light);
+            color: var(--text);
+            border: 1px solid var(--text-dim) !important;
+        }
+        
+        .cancel-btn:hover {
+            background-color: var(--darker);
+        }
+        
+        .delete-btn {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+        
+        .entries-list {
+            background-color: var(--dark-light);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .entries-list h2 {
+            margin-bottom: 1.5rem;
+            color: var(--text-light);
+        }
+        
+        .entries-filter {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .entries-filter input {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 6px;
+            background-color: var(--darker);
+            color: var(--text);
+        }
+        
+        .entries-filter button {
+            padding: 0 1.5rem;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .entry-item {
+            background-color: var(--darker);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .entry-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .entry-info {
+            flex: 1;
+        }
+        
+        .entry-ip {
+            font-weight: 600;
+            color: var(--primary-light);
+            margin-bottom: 0.5rem;
+        }
+        
+        .entry-details {
+            display: flex;
+            gap: 1rem;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+        
+        .entry-details span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .entry-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .entry-actions button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .entry-edit-btn {
+            background: var(--gradient);
+            color: white;
+        }
+        
+        .entry-delete-btn {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .flag {
+            width: 30px;
+            height: 20px;
+            border-radius: 3px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            object-fit: cover;
+        }
+        
+        .override-badge {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .checkbox-container input {
+            width: auto;
+            margin-right: 0.5rem;
+        }
+
+        /* Pagination Styles */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 1.5rem;
+            gap: 0.5rem;
+        }
+
+        .pagination button {
+            padding: 0.5rem 1rem;
+            background-color: var(--dark-light);
+            color: var(--text);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pagination button:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .pagination button.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .entries-count {
+            text-align: center;
+            margin-top: 1rem;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .search-box {
+                flex-direction: column;
+            }
+            
+            .search-box button {
+                padding: 1rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .entry-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .entry-actions {
+                width: 100%;
+            }
+            
+            .entry-actions button {
+                width: 100%;
+            }
+            
+            .range-controls {
+                flex-direction: column;
+            }
+
+            .pagination {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="animate__animated animate__fadeInDown">
+        <div class="logo">
+            <div class="logo-icon">KIP</div>
+            <h1>KIP Lookup Admin</h1>
+        </div>
+        <nav>
+            <a href="index.html" class="back">Back to Lookup</a>
+        </nav>
+    </header>
+    
+    <main>
+        <section id="auth-container" class="auth-container animate__animated animate__fadeIn">
+            <h2>Admin Login</h2>
+            <input type="email" id="email" placeholder="Email">
+            <input type="password" id="password" placeholder="Password">
+            <button id="login-btn">Login</button>
+            <div id="auth-error" class="auth-error"></div>
+        </section>
+        
+        <section id="admin-container" class="admin-container">
+            <div class="search-section animate__animated animate__fadeIn">
+                <div class="search-box">
+                    <input type="text" id="admin-ip" placeholder="Enter IP or IP Range (CIDR)">
+                    <button id="fetch-btn">Search</button>
+                </div>
+            </div>
+            
+            <div id="edit-form" class="edit-form">
+                <div class="form-header">
+                    <h2>Edit IP Information</h2>
+                    <div id="ip-display"></div>
+                </div>
+                
+                <div class="tab-container">
+                    <div class="tab active" data-tab="basic">Basic Info</div>
+                    <div class="tab" data-tab="location">Location</div>
+                    <div class="tab" data-tab="country">Country</div>
+                    <div class="tab" data-tab="network">Network</div>
+                    <div class="tab" data-tab="range">IP Range</div>
+                </div>
+                
+                <div class="tab-content active" id="basic-tab">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="edit-ip">IP Address</label>
+                            <input type="text" id="edit-ip" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-network">Network Range</label>
+                            <input type="text" id="edit-network">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-version">IP Version</label>
+                            <select id="edit-version">
+                                <option value="IPv4">IPv4</option>
+                                <option value="IPv6">IPv6</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="location-tab">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="edit-city">City</label>
+                            <input type="text" id="edit-city">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-region">Region</label>
+                            <input type="text" id="edit-region">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-region-code">Region Code</label>
+                            <input type="text" id="edit-region-code">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-postal">Postal Code</label>
+                            <input type="text" id="edit-postal">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-latitude">Latitude</label>
+                            <input type="text" id="edit-latitude">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-longitude">Longitude</label>
+                            <input type="text" id="edit-longitude">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="country-tab">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="edit-country-name">Country Name</label>
+                            <input type="text" id="edit-country-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-country">Country Code</label>
+                            <input type="text" id="edit-country">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-country-capital">Capital</label>
+                            <input type="text" id="edit-country-capital">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-country-tld">TLD</label>
+                            <input type="text" id="edit-country-tld">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-currency">Currency</label>
+                            <input type="text" id="edit-currency" placeholder="e.g., TWD (Dollar)">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-languages">Languages</label>
+                            <input type="text" id="edit-languages" placeholder="e.g., zh-TW,zh,nan,hak">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-country-population">Population</label>
+                            <input type="number" id="edit-country-population">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-country-area">Area (km²)</label>
+                            <input type="number" step="0.01" id="edit-country-area">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-in-eu">In EU</label>
+                            <select id="edit-in-eu">
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="network-tab">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="edit-asn">ASN</label>
+                            <input type="text" id="edit-asn">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-org">Organization</label>
+                            <input type="text" id="edit-org">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-timezone">Timezone</label>
+                            <input type="text" id="edit-timezone">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-utc-offset">UTC Offset</label>
+                            <input type="text" id="edit-utc-offset">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-country-calling-code">Calling Code</label>
+                            <input type="text" id="edit-country-calling-code">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="range-tab">
+                    <div class="form-group">
+                        <label>Apply to IP Range</label>
+                        <div class="range-controls">
+                            <input type="text" id="range-start" placeholder="Start IP">
+                            <input type="text" id="range-end" placeholder="End IP">
+                            <button id="apply-range">Apply Changes</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Or use CIDR notation in search box (e.g., 192.168.1.0/24)</label>
+                    </div>
+                    <div class="form-group">
+                        <div class="range-controls">
+                            <input type="text" id="delete-range-start" placeholder="Start IP">
+                            <input type="text" id="delete-range-end" placeholder="End IP">
+                            <button id="delete-range" class="delete-btn">Delete Range</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="checkbox-container">
+                    <input type="checkbox" id="full-override">
+                    <label for="full-override">Full override (use only custom data, don't query API)</label>
+                </div>
+                
+                <div class="form-actions">
+                    <button class="delete-btn" id="delete-btn">Delete</button>
+                    <button class="cancel-btn" id="cancel-btn">Cancel</button>
+                    <button class="save-btn" id="save-btn">Save Changes</button>
+                </div>
+            </div>
+            
+            <div class="entries-list animate__animated animate__fadeIn">
+                <h2>Managed IP Entries</h2>
+                <div class="entries-filter">
+                    <input type="text" id="entries-search" placeholder="Search IPs or ranges...">
+                    <button id="refresh-entries">Refresh</button>
+                </div>
+                <div id="ip-entries"></div>
+                <div class="entries-count" id="entries-count"></div>
+                <div class="pagination" id="pagination">
+                    <button id="first-page" disabled>First</button>
+                    <button id="prev-page" disabled>Previous</button>
+                    <div id="page-numbers"></div>
+                    <button id="next-page" disabled>Next</button>
+                    <button id="last-page" disabled>Last</button>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="animate__animated animate__fadeInUp">
+        <p>© 2023 KIP Lookup | Professional IP Intelligence Tool</p>
+    </footer>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA0XI-9ennMtTNfJ1PI-MgIN7xjy2jpfxQ",
+            authDomain: "isp-85d1c.firebaseapp.com",
+            databaseURL: "https://isp-85d1c-default-rtdb.firebaseio.com",
+            projectId: "isp-85d1c",
+            storageBucket: "isp-85d1c.firebasestorage.app",
+            messagingSenderId: "1072639374588",
+            appId: "1:1072639374588:web:7a8fe9539c4e796ed09379",
+            measurementId: "G-5H8SG4S988"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
+
+        // Pagination variables
+        const itemsPerPage = 20;
+        let currentPage = 1;
+        let totalPages = 1;
+        let allEntries = [];
+        let filteredEntries = [];
+
+        // Sanitize IP for Firebase path (replace . with _)
+        function sanitizeIpForFirebase(ip) {
+            return ip.replace(/\./g, '_');
+        }
+
+        // Convert sanitized IP back to original format
+        function desanitizeIpFromFirebase(sanitizedIp) {
+            return sanitizedIp.replace(/_/g, '.');
+        }
+
+        // Auth state listener
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // User is signed in
+                document.getElementById('auth-container').style.display = 'none';
+                document.getElementById('admin-container').style.display = 'block';
+                loadIpEntries();
+            } else {
+                // User is signed out
+                document.getElementById('auth-container').style.display = 'block';
+                document.getElementById('admin-container').style.display = 'none';
+                document.getElementById('edit-form').style.display = 'none';
+            }
+        });
+
+        // Login
+        document.getElementById('login-btn').addEventListener('click', () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .catch(error => {
+                    document.getElementById('auth-error').textContent = error.message;
+                });
+        });
+
+        // Tab functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+            });
+        });
+
+        // Fetch IP data
+        document.getElementById('fetch-btn').addEventListener('click', async () => {
+            const ip = document.getElementById('admin-ip').value.trim();
+            if (!ip) {
+                alert('Please enter an IP address');
+                return;
+            }
+
+            try {
+                // Check Firebase first
+                const sanitizedIp = sanitizeIpForFirebase(ip);
+                const snapshot = await database.ref('ipData').child(sanitizedIp).once('value');
+                let ipData = snapshot.val();
+                
+                if (ipData) {
+                    // Existing entry found
+                    populateEditForm(ip, ipData);
+                } else {
+                    // New entry - fetch from API
+                    const response = await fetch(`https://ipapi.co/${ip}/json/`);
+                    if (!response.ok) throw new Error('IP lookup failed');
+                    const apiData = await response.json();
+                    
+                    // Prepare new entry with isFullOverride false
+                    ipData = {
+                        ...apiData,
+                        isFullOverride: false,
+                        updatedAt: new Date().toISOString()
+                    };
+                    
+                    populateEditForm(ip, ipData);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+
+        function populateEditForm(ip, data) {
+            // Update IP display
+            document.getElementById('ip-display').innerHTML = `
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-weight: 600; color: var(--primary-light);">${ip}</span>
+                    ${data.country ? `<img class="flag" src="https://flagcdn.com/w40/${data.country.toLowerCase()}.png" alt="Flag">` : ''}
+                </div>
+            `;
+            
+            // Set form fields
+            document.getElementById('full-override').checked = data.isFullOverride || false;
+            
+            // Set all field values
+            const fields = [
+                'network', 'version', 'asn', 'org',
+                'country_name', 'country', 'region', 'region_code', 'city', 'postal',
+                'latitude', 'longitude', 'timezone', 'utc_offset',
+                'country_calling_code', 'country_capital', 'country_tld',
+                'currency', 'languages',
+                'country_population', 'country_area', 'in_eu'
+            ];
+            
+            fields.forEach(field => {
+                const element = document.getElementById(`edit-${field.replace('_', '-')}`);
+                if (element) {
+                    element.value = data[field] || '';
+                    
+                    // Handle boolean fields
+                    if (field === 'in_eu') {
+                        element.value = data.in_eu ? 'true' : 'false';
+                    }
+                }
+            });
+            
+            document.getElementById('edit-form').style.display = 'block';
+        }
+
+        // Save IP data
+        document.getElementById('save-btn').addEventListener('click', async () => {
+            const ip = document.getElementById('admin-ip').value.trim();
+            if (!ip) {
+                alert('Please enter an IP address');
+                return;
+            }
+
+            const sanitizedIp = sanitizeIpForFirebase(ip);
+            const isFullOverride = document.getElementById('full-override').checked;
+            
+            // Prepare data object
+            const ipData = {
+                isFullOverride,
+                updatedAt: new Date().toISOString()
+            };
+            
+            // Get all field values
+            const fields = [
+                'network', 'version', 'asn', 'org',
+                'country_name', 'country', 'region', 'region_code', 'city', 'postal',
+                'latitude', 'longitude', 'timezone', 'utc_offset',
+                'country_calling_code', 'country_capital', 'country_tld',
+                'currency', 'languages',
+                'country_population', 'country_area', 'in_eu'
+            ];
+            
+            fields.forEach(field => {
+                const element = document.getElementById(`edit-${field.replace('_', '-')}`);
+                if (element) {
+                    // Convert to proper type
+                    let value = element.value;
+                    if (field === 'country_population' || field === 'country_area') {
+                        value = parseFloat(value);
+                    } else if (field === 'in_eu') {
+                        value = value === 'true';
+                    }
+                    
+                    ipData[field] = value;
+                }
+            });
+            
+            try {
+                await database.ref('ipData').child(sanitizedIp).set(ipData);
+                alert('Saved successfully');
+                loadIpEntries();
+            } catch (error) {
+                alert('Error saving: ' + error.message);
+            }
+        });
+
+        // Cancel editing
+        document.getElementById('cancel-btn').addEventListener('click', () => {
+            document.getElementById('edit-form').style.display = 'none';
+        });
+
+        // Delete entry
+        document.getElementById('delete-btn').addEventListener('click', async () => {
+            const ip = document.getElementById('admin-ip').value.trim();
+            if (!ip) return;
+            
+            if (confirm(`Are you sure you want to delete ${ip}?`)) {
+                try {
+                    const sanitizedIp = sanitizeIpForFirebase(ip);
+                    await database.ref('ipData').child(sanitizedIp).remove();
+                    alert('Deleted successfully');
+                    document.getElementById('edit-form').style.display = 'none';
+                    loadIpEntries();
+                } catch (error) {
+                    alert('Error deleting: ' + error.message);
+                }
+            }
+        });
+
+        // IP Range functionality
+        document.getElementById('apply-range').addEventListener('click', async () => {
+            const startIp = document.getElementById('range-start').value.trim();
+            const endIp = document.getElementById('range-end').value.trim();
+            
+            if (!startIp || !endIp) {
+                alert('Please enter both start and end IPs');
+                return;
+            }
+            
+            // Get current form data
+            const formData = getFormData();
+            
+            // Apply to all IPs in range
+            if (confirm(`Apply these changes to all IPs from ${startIp} to ${endIp}?`)) {
+                // Convert IPs to numbers
+                const start = ipToInt(startIp);
+                const end = ipToInt(endIp);
+                
+                if (start > end) {
+                    alert('Start IP must be lower than End IP');
+                    return;
+                }
+                
+                // Create batch update
+                const updates = {};
+                for (let i = start; i <= end; i++) {
+                    const ip = intToIp(i);
+                    const sanitizedIp = sanitizeIpForFirebase(ip);
+                    updates[sanitizedIp] = {
+                        ...formData,
+                        ip: ip,
+                        updatedAt: new Date().toISOString()
+                    };
+                }
+                
+                try {
+                    await database.ref('ipData').update(updates);
+                    alert(`Successfully updated ${Object.keys(updates).length} IPs`);
+                    loadIpEntries();
+                } catch (error) {
+                    alert('Error updating range: ' + error.message);
+                }
+            }
+        });
+        
+        // Delete IP Range functionality
+        document.getElementById('delete-range').addEventListener('click', async () => {
+            const startIp = document.getElementById('delete-range-start').value.trim();
+            const endIp = document.getElementById('delete-range-end').value.trim();
+            
+            if (!startIp || !endIp) {
+                alert('Please enter both start and end IPs');
+                return;
+            }
+            
+            if (confirm(`Are you sure you want to delete ALL IPs from ${startIp} to ${endIp}? This cannot be undone!`)) {
+                // Convert IPs to numbers
+                const start = ipToInt(startIp);
+                const end = ipToInt(endIp);
+                
+                if (start > end) {
+                    alert('Start IP must be lower than End IP');
+                    return;
+                }
+                
+                try {
+                    // Get all IPs in range
+                    const snapshot = await database.ref('ipData').once('value');
+                    const ipData = snapshot.val() || {};
+                    const updates = {};
+                    
+                    for (let i = start; i <= end; i++) {
+                        const ip = intToIp(i);
+                        const sanitizedIp = sanitizeIpForFirebase(ip);
+                        if (ipData[sanitizedIp]) {
+                            updates[sanitizedIp] = null;
+                        }
+                    }
+                    
+                    if (Object.keys(updates).length === 0) {
+                        alert('No IPs found in this range');
+                        return;
+                    }
+                    
+                    await database.ref('ipData').update(updates);
+                    alert(`Successfully deleted ${Object.keys(updates).length} IPs`);
+                    loadIpEntries();
+                } catch (error) {
+                    alert('Error deleting range: ' + error.message);
+                }
+            }
+        });
+        
+        function ipToInt(ip) {
+            return ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0) >>> 0;
+        }
+        
+        function intToIp(int) {
+            return [
+                (int >>> 24) & 0xFF,
+                (int >>> 16) & 0xFF,
+                (int >>> 8) & 0xFF,
+                int & 0xFF
+            ].join('.');
+        }
+        
+        function getFormData() {
+            return {
+                network: document.getElementById('edit-network').value,
+                version: document.getElementById('edit-version').value,
+                asn: document.getElementById('edit-asn').value,
+                org: document.getElementById('edit-org').value,
+                country_name: document.getElementById('edit-country-name').value,
+                country: document.getElementById('edit-country').value,
+                region: document.getElementById('edit-region').value,
+                region_code: document.getElementById('edit-region-code').value,
+                city: document.getElementById('edit-city').value,
+                postal: document.getElementById('edit-postal').value,
+                latitude: document.getElementById('edit-latitude').value,
+                longitude: document.getElementById('edit-longitude').value,
+                timezone: document.getElementById('edit-timezone').value,
+                utc_offset: document.getElementById('edit-utc-offset').value,
+                country_calling_code: document.getElementById('edit-country-calling-code').value,
+                country_capital: document.getElementById('edit-country-capital').value,
+                country_tld: document.getElementById('edit-country-tld').value,
+                currency: document.getElementById('edit-currency').value,
+                languages: document.getElementById('edit-languages').value,
+                country_population: parseFloat(document.getElementById('edit-country-population').value) || 0,
+                country_area: parseFloat(document.getElementById('edit-country-area').value) || 0,
+                in_eu: document.getElementById('edit-in-eu').value === 'true',
+                isFullOverride: document.getElementById('full-override').checked
+            };
+        }
+
+        // Load IP entries with pagination
+        function loadIpEntries() {
+            database.ref('ipData').once('value')
+                .then(snapshot => {
+                    const data = snapshot.val() || {};
+                    allEntries = [];
+                    const rangeMap = new Map();
+                    
+                    // Process entries as before
+                    Object.entries(data).forEach(([sanitizedIp, info]) => {
+                        const ip = desanitizeIpFromFirebase(sanitizedIp);
+                        
+                        if (ip.includes('/')) {
+                            rangeMap.set(ip, info);
+                            return;
+                        }
+                        
+                        let isCovered = false;
+                        for (const [range] of rangeMap) {
+                            if (isIpInRange(ip, range)) {
+                                isCovered = true;
+                                break;
+                            }
+                        }
+                        
+                        if (!isCovered) {
+                            allEntries.push({ ip, info });
+                        }
+                    });
+                    
+                    rangeMap.forEach((info, range) => {
+                        allEntries.unshift({ ip: range, info, isRange: true });
+                    });
+
+                    // Initialize filtered entries with all entries
+                    filteredEntries = [...allEntries];
+                    currentPage = 1;
+                    updatePagination();
+                    displayPage(currentPage);
+                });
+        }
+
+        // Update pagination controls
+        function updatePagination() {
+            totalPages = Math.ceil(filteredEntries.length / itemsPerPage);
+            currentPage = Math.min(currentPage, totalPages);
+            
+            const pageNumbers = document.getElementById('page-numbers');
+            pageNumbers.innerHTML = '';
+            
+            // Show up to 5 page numbers around current page
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
+            
+            if (currentPage <= 3) {
+                endPage = Math.min(5, totalPages);
+            }
+            if (currentPage >= totalPages - 2) {
+                startPage = Math.max(1, totalPages - 4);
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.textContent = i;
+                pageBtn.className = i === currentPage ? 'active' : '';
+                pageBtn.addEventListener('click', () => {
+                    currentPage = i;
+                    displayPage(currentPage);
+                });
+                pageNumbers.appendChild(pageBtn);
+            }
+            
+            document.getElementById('first-page').disabled = currentPage === 1;
+            document.getElementById('prev-page').disabled = currentPage === 1;
+            document.getElementById('next-page').disabled = currentPage === totalPages;
+            document.getElementById('last-page').disabled = currentPage === totalPages;
+            
+            document.getElementById('entries-count').textContent = 
+                `Showing ${(currentPage - 1) * itemsPerPage + 1}-${Math.min(currentPage * itemsPerPage, filteredEntries.length)} of ${filteredEntries.length} entries`;
+        }
+
+        // Display a specific page of entries
+        function displayPage(page) {
+            const ipEntries = document.getElementById('ip-entries');
+            ipEntries.innerHTML = '';
+            
+            const startIndex = (page - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, filteredEntries.length);
+            
+            for (let i = startIndex; i < endIndex; i++) {
+                const { ip, info, isRange } = filteredEntries[i];
+                const entry = document.createElement('div');
+                entry.className = 'entry-item';
+                
+                if (isRange) {
+                    entry.innerHTML = `
+                        <div class="entry-info">
+                            <div class="entry-ip">${ip} <span class="override-badge">RANGE</span></div>
+                            <div class="entry-details">
+                                ${info.city ? `<span>${info.city}</span>` : ''}
+                                ${info.country_name ? `<span>${info.country_name}</span>` : ''}
+                                ${info.org ? `<span>${info.org}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="entry-actions">
+                            <button class="entry-edit-btn" onclick="editEntry('${ip}')">Edit</button>
+                            <button class="entry-delete-btn" onclick="deleteEntry('${ip}')">Delete</button>
+                        </div>
+                    `;
+                } else {
+                    entry.innerHTML = `
+                        <div class="entry-info">
+                            <div class="entry-ip">${ip} ${info.isFullOverride ? '<span class="override-badge">FULL</span>' : ''}</div>
+                            <div class="entry-details">
+                                ${info.city ? `<span>${info.city}</span>` : ''}
+                                ${info.country_name ? `<span>${info.country_name}</span>` : ''}
+                                ${info.org ? `<span>${info.org}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="entry-actions">
+                            <button class="entry-edit-btn" onclick="editEntry('${ip}')">Edit</button>
+                            <button class="entry-delete-btn" onclick="deleteEntry('${ip}')">Delete</button>
+                        </div>
+                    `;
+                }
+                
+                ipEntries.appendChild(entry);
+            }
+            
+            updatePagination();
+        }
+
+        // Search functionality
+        document.getElementById('entries-search').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            if (searchTerm === '') {
+                filteredEntries = [...allEntries];
+            } else {
+                filteredEntries = allEntries.filter(({ ip, info }) => {
+                    const ipMatch = ip.toLowerCase().includes(searchTerm);
+                    const detailsMatch = 
+                        (info.city && info.city.toLowerCase().includes(searchTerm)) ||
+                        (info.country_name && info.country_name.toLowerCase().includes(searchTerm)) ||
+                        (info.org && info.org.toLowerCase().includes(searchTerm));
+                    return ipMatch || detailsMatch;
+                });
+            }
+            
+            currentPage = 1;
+            displayPage(currentPage);
+        });
+
+        // Pagination button event listeners
+        document.getElementById('first-page').addEventListener('click', () => {
+            currentPage = 1;
+            displayPage(currentPage);
+        });
+
+        document.getElementById('prev-page').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                displayPage(currentPage);
+            }
+        });
+
+        document.getElementById('next-page').addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                displayPage(currentPage);
+            }
+        });
+
+        document.getElementById('last-page').addEventListener('click', () => {
+            currentPage = totalPages;
+            displayPage(currentPage);
+        });
+
+        // Refresh button
+        document.getElementById('refresh-entries').addEventListener('click', () => {
+            document.getElementById('entries-search').value = '';
+            loadIpEntries();
+        });
+
+        // Edit existing entry
+        function editEntry(ip) {
+            document.getElementById('admin-ip').value = ip;
+            document.getElementById('fetch-btn').click();
+        }
+
+        // Delete entry (individual or range)
+        function deleteEntry(ip) {
+            if (confirm(`Are you sure you want to delete ${ip}?`)) {
+                try {
+                    const sanitizedIp = sanitizeIpForFirebase(ip);
+                    
+                    if (ip.includes('/')) {
+                        // Delete all IPs in this range
+                        const [range, bits] = ip.split('/');
+                        const rangeInt = ipToInt(range);
+                        const mask = ~(0xFFFFFFFF >>> parseInt(bits));
+                        const startIp = rangeInt & mask;
+                        const endIp = startIp | (~mask);
+                        
+                        database.ref('ipData').once('value').then(snapshot => {
+                            const ipData = snapshot.val() || {};
+                            const updates = {};
+                            
+                            for (let i = startIp; i <= endIp; i++) {
+                                const currentIp = intToIp(i);
+                                const currentSanitizedIp = sanitizeIpForFirebase(currentIp);
+                                if (ipData[currentSanitizedIp]) {
+                                    updates[currentSanitizedIp] = null;
+                                }
+                            }
+                            
+                            if (Object.keys(updates).length === 0) {
+                                alert('No IPs found in this range');
+                                return;
+                            }
+                            
+                            database.ref('ipData').update(updates)
+                                .then(() => {
+                                    alert(`Deleted ${Object.keys(updates).length} IPs in range ${ip}`);
+                                    loadIpEntries();
+                                });
+                        });
+                    } else {
+                        // Delete single IP
+                        database.ref('ipData').child(sanitizedIp).remove()
+                            .then(() => {
+                                alert('Deleted successfully');
+                                loadIpEntries();
+                            });
+                    }
+                } catch (error) {
+                    alert('Error deleting: ' + error.message);
+                }
+            }
+        }
+
+        // Make functions available globally
+        window.editEntry = editEntry;
+        window.deleteEntry = deleteEntry;
+    </script>
+</body>
+</html>
